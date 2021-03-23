@@ -1,0 +1,1 @@
+Este repositorio es para la parte del training de las prácticas de empresa
