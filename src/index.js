@@ -1,19 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './assets/styles/index.css';
-import { Provider } from 'mobx-react';
 import App from './App';
-import Core from './core/core';
 import reportWebVitals from './reportWebVitals';
-import BD from './core/bd';
+import{Provider} from "react-redux";
+import store from "./store";
 
-let bd = new BD();
-let core = new Core(bd);
+
+
 ReactDOM.render(
   
-  <React.StrictMode>
+  <Provider store={store}>
     <App />
-  </React.StrictMode>,
+  </Provider>,
   document.getElementById('root')
 );
 

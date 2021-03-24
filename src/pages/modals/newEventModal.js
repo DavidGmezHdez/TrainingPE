@@ -1,8 +1,8 @@
 import { IonPage, IonContent, IonLoading,IonImg,IonHeader,IonButton,IonFooter,IonToolbar,IonLabel,IonItem,IonList, IonCardHeader,IonCard, IonCardTitle,IonTextarea, IonTitle, IonCardContent, IonModal, IonGrid, IonInput } from '@ionic/react';
 import _ from 'lodash';
 import React, { Component } from 'react';
-import Event from '../../core/objects/event'
-import {addEvent,updateEvent} from '../../core/actions'
+import Event from '../../objects/event'
+import {addEvent,updateEvent} from '../../services/home.service'
 
 
 

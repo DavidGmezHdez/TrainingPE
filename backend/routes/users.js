@@ -12,7 +12,7 @@ router.route('/').get((req,res) =>{
 router.route('/register').post((req,res) =>{
     const username = req.body.username;
     const password = bcrypt.hashSync(req.body.password,10);
-    const rango = req.body.rango;
+    const rango = req.body.rol;
     
     const newUser = new User({username,password,rango});
     newUser.save()
@@ -21,36 +21,27 @@ router.route('/register').post((req,res) =>{
     
 });
 
-/*router.route('/login').post((req,res)=>{
-    User.findOne({user:req.body.username},(err,user=>{
-        if(!user)
-            return res.status(400).send({ok:false,err:{message:"Usuario no encontrado"}})
-        
-        if(!bcrypt.compareSync(req.body.password,user.password))
-            return res.status(400).send({ok:false,err:{message:"Clave incorrecta"}})
-        
-        let token = jwt.sign({
-            userbd: user
-        },'secret',{expiresIn:'24'})
-
-        res.json({ok:true,userbd:user,token});
-    }));
-})
-*/
 router.route('/login').post((req,res)=>{
-    User.findOne({user:req.body.username},(err,user=>{
-        if(!user)
-            return res.status(400).send({ok:false,err:{message:"Usuario no encontrado"}})
-        
-        if(!bcrypt.compareSync(req.body.password,user.password))
-            return res.status(400).send({ok:false,err:{message:"Clave incorrecta"}})
-        
+    User.findOne({username:req.body.username})
+    .then((user)=>{
+        console.log(user);
+        if(!user){
+            return res.status(400).send({ok:false,message:"Usuario no encontrado"})
+        }
+
+        bcrypt.compareSync(req.body.password,user.password,function(err,res){
+            if(err){
+                return res.status(400).send({ok:false,message:"Clave incorrecta"})
+            }
+        });
+
         let token = jwt.sign({
             userbd: user
-        },'secret',{expiresIn:'24'})
+        },'secret',{expiresIn:'24'});
 
         res.json({ok:true,userbd:user,token});
-    }));
+    })
+    .catch(err => res.status(400).json('Error: ' + err));
 })
 
 

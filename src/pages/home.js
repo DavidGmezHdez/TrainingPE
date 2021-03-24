@@ -6,7 +6,9 @@ import { toJS } from 'mobx';
 import React, { Component } from 'react';
 import Footer from '../components/footer'
 import ModalEvents from '../pages/modals/newEventModal'
-import {getElementos,deleteEvent} from '../core/actions'
+import {getElementos,deleteEvent} from '../services/home.service'
+import {logout} from "../actions/auth";
+import { useDispatch } from 'react-redux';
 
 class Home extends Component {
 	constructor(props) {
@@ -31,7 +33,6 @@ class Home extends Component {
     setShowModal(state) {
 		this.setState(() => ({ showModal: state }));
 	}
-
 
     aniadirElemento(){
         if(this.isLoaded){
@@ -132,6 +133,18 @@ class Home extends Component {
 		}
 	}
 
+    /*doLogOut(){
+        dispatch(logout())
+        .then(()=>{
+            props.history.push("/login");
+            window.location.reload();
+        })
+        .catch(()=>{
+            console.log("Error en components/home.js ")
+        })
+    }
+    */
+
 
 
     render() {
@@ -149,7 +162,7 @@ class Home extends Component {
 						</IonButton>
                 {this.changeModalView()}
                 {this.renderElementos()}
-                Subiendolo a github
+                <IonButton onClick={this.doLogOut()}>Logout</IonButton>
                 <Footer />
             </IonPage>
         ):

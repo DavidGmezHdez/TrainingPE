@@ -7,6 +7,7 @@ import {
 	Route,
 } from 'react-router-dom';
 
+import Login from "./components/login"
 import Home from './pages/home'
 
 import './assets/styles/App.css';
@@ -17,8 +18,9 @@ class App extends Component {
       <IonApp>
         <Router>
 							<Route name="home" path="/home" component={Home} />
+              <Route name="login" path="/login" component={Login} />
               <Route exact path="/">
-                <Redirect to="/home" />
+                <Redirect to="/login" />
               </Route>
         </Router>
       </IonApp>
