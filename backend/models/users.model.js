@@ -4,6 +4,8 @@ const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
     username: {type: String, required:true,unique:true,trim:true,minlength:3},
+    password: {type: String,required:true,minglength:3},
+    rango: {type: String, required:true}
 },{
     timestamps: true,
 });
