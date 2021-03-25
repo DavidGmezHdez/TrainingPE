@@ -12,15 +12,16 @@ import AuthService from "../services/auth.service";
 
 export const register = (username,password,rol) => (dispatch) =>{
 
-    return AuthService.register(username,password,rol).then(
-        (response) =>{
+    return AuthService.register(username,password,rol)
+    .then((response) =>{
             dispatch({
                 type: REGISTER_SUCCESS
             });
             dispatch({
                 type: SET_MESSAGE,
-                payload: response.data.message
+                payload: response.message
             });
+            console.log(Promise);
             return Promise.resolve();
         },
         (error) => {
@@ -35,22 +36,23 @@ export const register = (username,password,rol) => (dispatch) =>{
             return Promise.reject();
         }
     )
+    .catch((err)=>{
+        console.log("Error actions/auth.js: " + err); 
+    })
 };
 
-
+/*  LOGIN
+*   llama a AuthService.login con el username y el password
+* dispatch si ha sido correcto o si ha fallado
+*/
 export const login = (username,password) => (dispatch) =>{
     return AuthService.login(username,password)
     .then(
         (data) =>{
-            console.log(data);
             dispatch({
-                type: LOGIN_SUCCESS
-            });
-            dispatch({
-                type: SET_MESSAGE,
+                type: LOGIN_SUCCESS,
                 payload: {user:data}
             });
-            console.log(Promise.resolve())
             return Promise.resolve();
         },
         (error) => {

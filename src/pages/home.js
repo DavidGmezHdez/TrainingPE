@@ -133,20 +133,10 @@ class Home extends Component {
 		}
 	}
 
-    /*doLogOut(){
-        dispatch(logout())
-        .then(()=>{
-            props.history.push("/login");
-            window.location.reload();
-        })
-        .catch(()=>{
-            console.log("Error en components/home.js ")
-        })
+    doLogOut(){
+        console.log("hola");
     }
-    */
-
-
-
+    
     render() {
         return this.state.elementos ?(
             <IonPage>

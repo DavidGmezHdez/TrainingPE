@@ -15,6 +15,7 @@ router.route('/register').post((req,res) =>{
     const rango = req.body.rol;
     
     const newUser = new User({username,password,rango});
+    console.log(newUser);
     newUser.save()
     .then(() => res.status(200).send({message:'User added'}))
     .catch(err => res.status(400).send({message:'Error: ' + err}));
@@ -39,7 +40,7 @@ router.route('/login').post((req,res)=>{
             userbd: user
         },'secret',{expiresIn:'24'});
 
-        res.json({ok:true,userbd:user,token});
+        res.json({ok:true,user:user,token});
     })
     .catch(err => res.status(400).json('Error: ' + err));
 })

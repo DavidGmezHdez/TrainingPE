@@ -8,7 +8,7 @@ const register = async (username,password,rol) =>{
     return axios.post(API_URL + 'register',{
         username,password,rol
     }) 
-    .then((response) => console.log(response.data));
+    .then((response) => response.data);
 }
 
 const login = async (username,password) =>{
