@@ -57,12 +57,17 @@ const Home = (props) => {
             setElement(element)
         }
 
-        const mostrarForm = (state) =>{
-            console.log(state);
-            if(state === "none")
-                setFormVisibility("block");
-            else if (state === "block")
-                setFormVisibility("none");
+        const toggleForm = (id) =>{
+            if(document.getElementById("contenido"+id).style.display === "none"){
+                document.getElementById("contenido"+id).style.display = "block";
+                document.getElementById("boton"+id).innerHTML = "Ocultar"
+            }
+            else if(document.getElementById("contenido"+id).style.display === "block"){
+                document.getElementById("contenido"+id).style.display = "none";
+                document.getElementById("boton"+id).innerHTML = "Comentar"
+            }
+    
+
         }
     
     
@@ -99,6 +104,9 @@ const Home = (props) => {
         const renderElements = () =>{
             let inputs = [];
                 elements.forEach(element => {
+                        let idboton = "boton"+element.idevent;
+                        let idcontenido = "contenido"+element.idevent;
+                        console.log(element);
                         inputs.push(
                             <IonCard key={element.idevent}>
                                 <IonCardHeader>
@@ -131,7 +139,7 @@ const Home = (props) => {
                                     
                                     
 
-                                    {(showButtons || element.author === currentUser.user.username) && (
+                                    {(showButtons || (currentUser && element.author === currentUser.user.username)) && (
                                         <IonItem>
                                             <IonButton onClick={() => { 
                                                 _deleteElement(element.idevent)  
@@ -147,20 +155,26 @@ const Home = (props) => {
                                         </IonItem>
                                     )}
 
-                                    {currentUser&& (
-                                        <IonItem>                                    
-                                            <IonButton
-                                            onClick={() => { 		
-                                                mostrarForm(formVisibility);
-                                                }}
-                                            >
-                                                Comentar
-                                            </IonButton>
-                                            <form  style={{display:formVisibility}}>
-                                            <IonTextarea id="text-area-comentario"disabled={false}></IonTextarea>
-                                                <IonButton type="submit">Enviar comentario</IonButton>
-                                            </form>
-                                        </IonItem>
+                                    {currentUser && (
+                                        <IonRow>
+                                            <IonCol>
+                                                <IonButton
+                                                id={idboton}
+                                                onClick={() => { 		
+                                                    toggleForm(element.idevent);
+                                                    }}
+                                                >
+                                                    Comentar
+                                                </IonButton>
+                                            </IonCol>
+                                            <IonCol>
+                                                <form id={idcontenido} style={{display:formVisibility}}>
+                                                <IonTextarea id="text-area-comentario"disabled={false}></IonTextarea>
+                                                    <IonButton type="submit">Enviar comentario</IonButton>
+                                                </form>
+                                            </IonCol>
+                                        </IonRow>
+                                       
 
                                     )}
 
@@ -175,10 +189,6 @@ const Home = (props) => {
 
         return(
             <IonPage>
-                <IonHeader>
-                    <IonLabel>Hola, estas en el home</IonLabel>
-                    
-                </IonHeader>
                 {currentUser && (
                     <IonButton
 							class="pointerClass"
