@@ -17,8 +17,9 @@ const login = async (username,password) =>{
         username,password
     }) 
     .then((response) => {
-        if (response.data.token)
+        if (response.data.token){
             localStorage.setItem("user",JSON.stringify(response.data));
+        }
         return response.data;
     });
 }

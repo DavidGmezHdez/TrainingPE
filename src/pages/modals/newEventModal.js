@@ -9,6 +9,7 @@ import {addEvent,updateEvent} from '../../services/home.service'
 class ModalEvents extends Component{
     constructor(props){
         super(props);
+        console.log(this.props.author);
         this.state = {
             showModal: true,
             event: undefined
@@ -31,7 +32,7 @@ class ModalEvents extends Component{
 					'Los campos titulo, descripcion, duracion y fecha deben de estar rellenos'
 				);
 			} else {
-                this.state.event = new Event(_.random(100),document.getElementById('title').value,document.getElementById('desc').value,document.getElementById('dur').value,document.getElementById('date').value);
+                this.state.event = new Event(_.random(100),document.getElementById('title').value,this.props.author,document.getElementById('desc').value,document.getElementById('dur').value,document.getElementById('date').value);
                 this.setState({event: this.state.event});
                 console.log(this.state.event);
                 addEvent(this.state.event).then((response) =>{
@@ -117,7 +118,7 @@ class ModalEvents extends Component{
                         <IonLabel>Duration</IonLabel>
                         <IonInput id="dur" value={this.props.event.duration} type="number"></IonInput>
                         
-                        <IonLabel>Date</IonLabel>
+                        <IonLabel>Date {this.props.event.date}</IonLabel>
                         <IonInput id="date" value={this.props.event.date} type="date"></IonInput>
 
                         <IonButton onClick={()=>{

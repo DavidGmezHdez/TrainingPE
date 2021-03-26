@@ -37,7 +37,7 @@ router.route('/login').post((req,res)=>{
         });
 
         let token = jwt.sign({
-            userbd: user
+            user: user
         },'secret',{expiresIn:'24'});
 
         res.json({ok:true,user:user,token});

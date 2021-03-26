@@ -1,42 +1,34 @@
 const router = require('express').Router();
-let Event = require('../models/events.model');
+let Comment = require('../models/comment.model');
 const {verifyToken} = require("../middlewares/auth");
-
-router.route('/').get((req,res) =>{
-    Event.find()
-    .then(events => res.json(events))
-    .catch(err => res.status(400).json('Error: ' + err));
-});
 
 router.route('/add').post((req,res) =>{
     console.log(req.body);
-    const title = req.body.title;
+    const idevent = req.body.idevent;
     const author = req.body.author;
-    const description = req.body.description;
-    const duration = Number(req.body.duration);
-    const date = Date.parse(req.body.date);
+    const comment = req.body.comment;
     
-    const newEvent = new Event({title,author,description,duration,date});
-    console.log(newEvent);
+    const newComment = new Comment({idevent,author,comment});
+    console.log(newComment);
 
-    newEvent.save()
-    .then(() => res.json('Event added'))
+    newComment.save()
+    .then(() => res.json('Comment added'))
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
 router.route('/:id').get((req,res) =>{
-    Event.findById(req.params.id)
-    .then(event => res.json(event))
+    Comment.find({idevent:req.body.idevent})
+    .then(comments => res.json(comments))
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
 router.route('/:id').delete((req,res) =>{
-    Event.findByIdAndDelete(req.params.id)
-    .then(() => res.json('Event Deleted'))
+    Comment.findByIdAndDelete(req.params.id)
+    .then(() => res.json('Comment Deleted'))
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-router.route('/update/:id').post((req,res) =>{
+/*router.route('/update/:id').post((req,res) =>{
     Event.findById(req.params.id)
     .then(event => {
         event.title = req.body.title;
@@ -50,6 +42,7 @@ router.route('/update/:id').post((req,res) =>{
     })
     .catch(err => res.status(400).json('Error: ' + err));
 });
+*/
 
 
 module.exports = router;

@@ -13,7 +13,10 @@ app.use(express.json());
 app.use(express.urlencoded());
 
 const uri = process.env.ATLAS_URI;
-mongoose.connect(uri,{useNewUrlParser:true, useCreateIndex: true});
+mongoose.connect(uri,{useNewUrlParser:true, useCreateIndex: true})
+.catch((err) =>{
+    console.log("Error al conectar a la mongoose: " + err);
+});
 
 const connection = mongoose.connection;
 connection.once('open',()=>{
@@ -22,9 +25,11 @@ connection.once('open',()=>{
 
 const userRouter = require('./routes/users');
 const eventsRouter = require('./routes/events');
+const commentsRouter = require('./routes/comments');
 
 app.use('/events',eventsRouter);
 app.use('/users',userRouter);
+app.use('/comments',commentsRouter);
 
 require('dns').lookup(require('os').hostname(), function (err, add, fam) {
     console.log('addr: ' + add);

@@ -1,4 +1,4 @@
-import { IonApp } from '@ionic/react';
+import { IonApp, IonButton, IonContent, IonHeader, IonItem,IonLabel, IonNav, IonPage, IonToolbar } from '@ionic/react';
 import React, { Component, useState, useEffect } from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {BrowserRouter as Router, Switch, Route, Link} from "react-router-dom";
@@ -28,21 +28,49 @@ const App =() =>{
   },[dispatch]);
   */
 
-  const logOut = () =>{
-    dispatch(logout());
-  }
-
+  const doLogOut = (e) => {
+    dispatch(logout());      
+}
 
   return (
     <Provider store={store}>
       <IonApp>
         <Router>
+            <IonToolbar>
+            <IonButton>
+              <Link to={"/home"}>Home</Link>
+            </IonButton>
+            
+            {currentUser ? (
+              <IonItem>
+                <IonLabel>Bienvenido {currentUser.user.username}</IonLabel>
+                <IonButton onClick={doLogOut}>
+                  <a href="/login">Logout</a>
+                  </IonButton>
+              </IonItem>
+
+            ):
+              <IonItem>
+                <IonButton>
+                  <Link to={"/login"}>
+                      Login
+                  </Link>
+                  </IonButton>
+                  <IonButton>
+                  <Link to={"/register"}>
+                      Sign up
+                  </Link>
+                  </IonButton>
+              </IonItem>
+              
+            }
+
+          </IonToolbar>
           <Switch>
-              <Route name="home" path="/home" component={Home} />
+              <Route exact name="home" path={["/","/home"]} component={Home} />
               <Route name="login" exact path="/login" component={Login} />
               <Route name="register" exact path="/register" component={Register} />
           </Switch>
-
         </Router>
       </IonApp>
     </Provider>

@@ -1,7 +1,8 @@
 class Event {
-	constructor(idevent, title,description, duration, date, createdAt, updatedAt) {
+	constructor(idevent, title, author,description, duration, date, createdAt, updatedAt) {
 		this.idevent = idevent;
 		this.title = title;
+		this.author = author;
 		this.description = description;
 		this.duration = duration;
 		this.date = date;

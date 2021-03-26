@@ -1,19 +1,22 @@
 
 import Event from "../objects/event"
+import authHeader from "./auth-headers";
+import axios from "axios";
 
 const API_URL = 'http://localhost:4000/events/';
 
 
+
 // Este servicio nos permitira realizar todo el CRUD de los eventos almacenados en nuestra BD.
 
-const axios = require('axios');
-
 export const getElementos = async () =>{
-    return axios.get(API_URL)
+    return axios.get(API_URL,{
+        headers: authHeader()
+    })
     .then((response) => {
         let events = [];
         response.data.map((single) =>{
-            const eventObject = new Event(single._id,single.title,single.description,single.duration,single.date,single.createdAt,single.updatedAt);
+            const eventObject = new Event(single._id,single.title,single.author,single.description,single.duration,single.date,single.createdAt,single.updatedAt);
             events.push(eventObject);
         })
         return events;
@@ -21,12 +24,13 @@ export const getElementos = async () =>{
 }
 
 export const addEvent = async (event) =>{
+    console.log(event);
     return axios.post(API_URL+'add',event)
     .then((response) => console.log(response.data));
 }
 
 export const deleteEvent = async (id) =>{
-    return axios.delete(API_URL+'events/'+id)
+    return axios.delete(API_URL+id)
     .then((response) => console.log(response.data));
 }
 

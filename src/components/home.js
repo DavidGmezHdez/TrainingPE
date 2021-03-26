@@ -1,4 +1,4 @@
-import { IonPage, IonContent, IonLoading,IonImg,IonHeader,IonButton,IonFooter,IonToolbar,IonLabel,IonItem,IonList, IonCardHeader,IonCard, IonCardTitle,IonTextarea, IonTitle, IonCardContent } from '@ionic/react';
+import { IonPage, IonContent, IonLoading,IonImg,IonHeader,IonButton,IonFooter,IonToolbar,IonLabel,IonItem,IonList,IonCol, IonCardHeader,IonCard, IonCardTitle,IonTextarea, IonTitle, IonCardContent, IonGrid, IonRow } from '@ionic/react';
 import _ from 'lodash';
 
 import { toJS } from 'mobx';
@@ -12,80 +12,57 @@ import {Redirect} from "react-router-dom";
 
 const Home = (props) => {
         const {user: currentUser} = useSelector((state) => state.auth);
-        
+        const [elements,setElements] = useState([]);
+        const [showButtons,setShowButtons] = useState(false);
+        const [showModal,setShowModal] = useState(false);
+        const [element,setElement] = useState("");
+        const [modal,setModal] = useState(0);
+        const [formVisibility,setFormVisibility] = useState("none");
+
         const dispatch = useDispatch();
 
-        if(!currentUser){
-            return <Redirect to="/login"/>
-        }
-        
-        
-        const doLogOut = (e) => {
-            dispatch(logout());
-            props.history.push("/login");
-            window.location.reload();
-            /*.then(()=>{
-                console.log("adios logueado")
-                props.history.push("/login");
-                window.location.reload();
-            })
-            .catch((err)=>{
-                console.log("Error en components/home.js: " + err)
-            })*/
-            
-            
-        }
 
-        return(
-            <IonPage>
-                <IonHeader>
-                    Hola, estas en el home
-                </IonHeader>
-                <IonButton onClick={doLogOut}>Logout</IonButton>
-            </IonPage>
-
-        )
-    
-}
-
-export default Home;
-
-
-
-
-
-        /*useEffect(() => {
-            _getElements();
-        });
-
-
-
-        const aniadirElemento = () =>{
-            if(isLoaded){
-                setElementos(elementos);
+        useEffect(() => {
+            if(currentUser){
+                setShowButtons(currentUser.user.rango==="Administrador");
             }
-        }
+
+        },[currentUser]);
+
+        useEffect(() => {
+            _getElements(); 
+        },[]);
+
 
         const _getElements = () =>{
-            if(!isLoaded){
-                getElementos().then((elements) =>{
-                    setElementos(elements)
-                });
-            }
+            getElementos()
+            .then((elements) =>{
+                    setElements(elements);
+            })
+            .catch((err)=>{
+                console.log("Error en getElements: " + err);
+            });   
         }
 
         const _deleteElement = (id) =>{
             console.log(id);
             deleteEvent(id).then(()=>{
-                setElementos(elementos.filter(el => el.idevent !== id));
+                setElements(elements.filter(el => el.idevent !== id));
             })
         }
 
 
-    
         const selectModal = (m,element) =>{
             setModal(m);
-            setEvent(element)
+            setElement(element)
+        }
+
+        const mostrarForm = (state) =>{
+            console.log(state);
+            if(state === "none")
+                setFormVisibility("block");
+            else if (state === "block")
+                setFormVisibility("none");
         }
     
     
@@ -93,23 +70,24 @@ export default Home;
             switch (modal) {
                 case 1:
                     return <ModalEvents
-                    event = {event}
+                    event = {element}
+                    author = {currentUser.user.username}
                     showModal={showModal}
                     onDidDismiss={(_v) => {
                         console.log(_v.event)
-                        if(event){
-                            console.log(event)
-                            let updatedEvent = elementos.find(element => element.idevent === event.idevent);
-                            let index = elementos.indexOf(updatedEvent);
+                        if(element){
+                            console.log(element)
+                            console.log(_v.event)
+                            let updatedEvent = elements.find(findelement => findelement.idevent === element.idevent);
+                            let index = elements.indexOf(updatedEvent);
                             console.log(updatedEvent,index);
-                            elementos[index] = _v.event;
+                            elements[index] = _v.event;
                         }
                         else{
-                            elementos.push(_v.event);
-                           
+                            elements.push(_v.event);
                         }
-                        setElementos(elementos);
-                        setEvent(undefined);
+                        setElements(elements);
+                        setElement(undefined);
                         setShowModal(false);
                       }}
                />;
@@ -117,17 +95,10 @@ export default Home;
                     return null;
             }
         }
-    
-    
 
-        if (!isLoggedIn){
-            return <Redirect to="/login"/>;
-        }
-
-        const renderElementos = () =>{
+        const renderElements = () =>{
             let inputs = [];
-                if(elementos){
-                    elementos.forEach(element => {
+                elements.forEach(element => {
                         inputs.push(
                             <IonCard key={element.idevent}>
                                 <IonCardHeader>
@@ -136,29 +107,80 @@ export default Home;
                                         </IonCardHeader>
                                 </IonCardHeader>
                                 <IonCardContent>
-                                    <IonLabel>Description</IonLabel>
-                                    <IonTextarea disabled={true}>{element.description}</IonTextarea>
-                                    <IonButton onClick={() => { _deleteElement(element.idevent)  }}>
-                                        Delete event
-                                    </IonButton>
-                                    <IonButton onClick={() => { 		
-                                    setShowModal(true);
-                                    selectModal(1,element);  }}>
-                                        Update event
-                                    </IonButton>
+                                    <IonItem>
+                                        <IonLabel>Description</IonLabel>
+                                    </IonItem>
+                                    <IonItem>
+                                        <IonTextarea disabled={true}>{element.description}</IonTextarea>
+                                    </IonItem>
+                                        
+                                   
+                                    
+                                    <IonItem>
+                                        <IonLabel>Duracion</IonLabel>
+                                        <IonLabel>{element.duration} horas</IonLabel>
+                                    </IonItem>
+                                    <IonItem>
+                                        <IonLabel>Fecha</IonLabel>
+                                        <IonLabel>{element.date} horas</IonLabel>
+                                    </IonItem>
+                                    <IonItem>
+                                        <IonLabel>Posteado por {element.author}</IonLabel>
+                                    </IonItem>
+
+                                    
+                                    
+
+                                    {(showButtons || element.author === currentUser.user.username) && (
+                                        <IonItem>
+                                            <IonButton onClick={() => { 
+                                                _deleteElement(element.idevent)  
+                                            }}>
+                                                Delete event
+                                            </IonButton>
+                                            <IonButton onClick={() => { 		
+                                            setShowModal(true);
+                                            selectModal(1,element);  
+                                            }}>
+                                                Update event
+                                            </IonButton>
+                                        </IonItem>
+                                    )}
+
+                                    {currentUser&& (
+                                        <IonItem>                                    
+                                            <IonButton
+                                            onClick={() => { 		
+                                                mostrarForm(formVisibility);
+                                                }}
+                                            >
+                                                Comentar
+                                            </IonButton>
+                                            <form  style={{display:formVisibility}}>
+                                            <IonTextarea id="text-area-comentario"disabled={false}></IonTextarea>
+                                                <IonButton type="submit">Enviar comentario</IonButton>
+                                            </form>
+                                        </IonItem>
+
+                                    )}
+
                                 </IonCardContent>
                             </IonCard>
                             
                         );
                     });
-                }
-    
             return inputs;
         }
+        
 
-        return elementos ?(
+        return(
             <IonPage>
-                <IonButton
+                <IonHeader>
+                    <IonLabel>Hola, estas en el home</IonLabel>
+                    
+                </IonHeader>
+                {currentUser && (
+                    <IonButton
 							class="pointerClass"
 							key={'registerEvents'}
 							onClick={() => {
@@ -168,18 +190,14 @@ export default Home;
 							>
                                 Register Events
 						</IonButton>
+                )}
+                
                 {changeModalView()}
-                {renderElementos()}
-                <IonButton onClick={doLogOut()}>Logout</IonButton>
-                <Footer />
+                <IonGrid>
+                    {renderElements()}
+                </IonGrid>
             </IonPage>
-        ):
-        (
-            <IonLoading
-                isOpen={showLoading()}
-                onDidDismiss={() => setShowLoading(false)}
-                duration={5000}
-            />
+        )
+}
 
-        );
-        */
+export default Home;
