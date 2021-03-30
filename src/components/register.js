@@ -45,7 +45,6 @@ const Register = (props) =>{
 
         dispatch(register(username,password,rol))
         .then(()=>{
-            console.log("hola")
             props.history.push("/login");
             window.location.reload();
             setSuccessful(true);

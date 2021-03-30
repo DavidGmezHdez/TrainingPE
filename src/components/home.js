@@ -4,15 +4,18 @@ import _ from 'lodash';
 import { toJS } from 'mobx';
 import Footer from '../components/footer'
 import ModalEvents from '../pages/modals/newEventModal'
-import {getElementos,deleteEvent} from '../services/home.service'
+import {getElementos,deleteEvent,addComment,getComments, deleteComment} from '../services/home.service'
 import {logout} from "../actions/auth";
+import Comment from "../objects/comment";
 import React, { Component, useState, useRef, useEffect } from 'react';
+import {Link} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {Redirect} from "react-router-dom";
 
 const Home = (props) => {
         const {user: currentUser} = useSelector((state) => state.auth);
         const [elements,setElements] = useState([]);
+        const [comments,setComments] = useState([]);
         const [showButtons,setShowButtons] = useState(false);
         const [showModal,setShowModal] = useState(false);
         const [element,setElement] = useState("");
@@ -29,20 +32,31 @@ const Home = (props) => {
 
         },[currentUser]);
 
-        useEffect(() => {
-            _getElements(); 
-        },[]);
-
-
         const _getElements = () =>{
             getElementos()
             .then((elements) =>{
-                    setElements(elements);
+                setElements(elements);
             })
             .catch((err)=>{
                 console.log("Error en getElements: " + err);
             });   
         }
+
+        const _getComments = () =>{
+
+            getComments()
+            .then((comms) =>{
+                setComments(comms);
+            })
+            .catch((err)=>{
+                console.log("Error en getComments: " + err);
+            });   
+        }
+
+        useEffect(() => {
+            _getElements();
+            _getComments(); 
+        },[]);
 
         const _deleteElement = (id) =>{
             console.log(id);
@@ -63,6 +77,7 @@ const Home = (props) => {
                 document.getElementById("boton"+id).innerHTML = "Ocultar"
             }
             else if(document.getElementById("contenido"+id).style.display === "block"){
+                document.getElementById("cajacoment"+id).value = "";
                 document.getElementById("contenido"+id).style.display = "none";
                 document.getElementById("boton"+id).innerHTML = "Comentar"
             }
@@ -70,7 +85,8 @@ const Home = (props) => {
 
         }
     
-    
+        //debounce lodash
+        //use callback para el filtro y useReducer 
         const changeModalView = () =>{
             switch (modal) {
                 case 1:
@@ -89,7 +105,7 @@ const Home = (props) => {
                             elements[index] = _v.event;
                         }
                         else{
-                            elements.push(_v.event);
+                            setElements([...elements,_v.event]);
                         }
                         setElements(elements);
                         setElement(undefined);
@@ -101,88 +117,154 @@ const Home = (props) => {
             }
         }
 
+        const doComment = (idevent,usuario) =>{
+            
+            const newComment = new Comment (_.random(100),idevent,usuario,document.getElementById("cajacoment"+idevent).value);
+            console.log(newComment);
+            toggleForm(idevent);
+            addComment(newComment)
+            .then((response) =>{
+                console.log(response);
+                const commentBD = new Comment (response.comment._id,response.comment.idevent,response.comment.author,response.comment.comment,response.comment.createdAt,response.comment.updatedAt);
+                setComments([...comments,commentBD]);
+            })
+            .catch((err)=>{
+                console.log("Error en addComment: " + err);
+            }); 
+        }
+
+        const _deleteComment = (id) =>{
+            console.log(id);
+            deleteComment(id).then(()=>{
+                setComments(comments.filter(el => el.idcomment !== id));
+            })
+        }
+
+
+
         const renderElements = () =>{
             let inputs = [];
-                elements.forEach(element => {
-                        let idboton = "boton"+element.idevent;
-                        let idcontenido = "contenido"+element.idevent;
-                        console.log(element);
-                        inputs.push(
-                            <IonCard key={element.idevent}>
+            elements.forEach(element => {
+                    let idboton = "boton"+element.idevent;
+                    let idcontenido = "contenido"+element.idevent;
+                    let idcajacomentario = "cajacoment"+element.idevent;
+                    inputs.push(
+                        <IonCard key={element.idevent}>
+                            <IonCardHeader>
                                 <IonCardHeader>
-                                    <IonCardHeader>
-                                        <IonCardTitle>{element.title}</IonCardTitle>
-                                        </IonCardHeader>
-                                </IonCardHeader>
-                                <IonCardContent>
-                                    <IonItem>
-                                        <IonLabel>Description</IonLabel>
-                                    </IonItem>
-                                    <IonItem>
-                                        <IonTextarea disabled={true}>{element.description}</IonTextarea>
-                                    </IonItem>
-                                        
-                                   
+                                    <IonCardTitle>{element.title}</IonCardTitle>
+                                    </IonCardHeader>
+                            </IonCardHeader>
+                            <IonCardContent>
+                                <IonItem>
+                                    <IonLabel>Description</IonLabel>
+                                </IonItem>
+                                <IonItem>
+                                    <IonTextarea disabled={true}>{element.description}</IonTextarea>
+                                </IonItem>
                                     
-                                    <IonItem>
-                                        <IonLabel>Duracion</IonLabel>
-                                        <IonLabel>{element.duration} horas</IonLabel>
-                                    </IonItem>
-                                    <IonItem>
-                                        <IonLabel>Fecha</IonLabel>
-                                        <IonLabel>{element.date} horas</IonLabel>
-                                    </IonItem>
-                                    <IonItem>
-                                        <IonLabel>Posteado por {element.author}</IonLabel>
-                                    </IonItem>
+                                
+                                
+                                <IonItem>
+                                    <IonLabel>Duracion</IonLabel>
+                                    <IonLabel>{element.duration} horas</IonLabel>
+                                </IonItem>
+                                <IonItem>
+                                    <IonLabel>Fecha</IonLabel>
+                                    <IonLabel>{element.date} horas</IonLabel>
+                                </IonItem>
+                                <IonItem>
+                                    <IonLabel>Posteado por {element.author}</IonLabel>
+                                </IonItem>
 
-                                    
-                                    
+                                
+                                
 
-                                    {(showButtons || (currentUser && element.author === currentUser.user.username)) && (
-                                        <IonItem>
-                                            <IonButton onClick={() => { 
-                                                _deleteElement(element.idevent)  
-                                            }}>
-                                                Delete event
+                                {(currentUser && (element.author === currentUser.user.username || currentUser.user.rango === "Administrador")) && (
+                                    <IonItem>
+                                        <IonButton onClick={() => { 
+                                            _deleteElement(element.idevent)  
+                                        }}>
+                                            Delete event
+                                        </IonButton>
+                                        <IonButton onClick={() => { 		
+                                        setShowModal(true);
+                                        selectModal(1,element);  
+                                        }}>
+                                            Update event
+                                        </IonButton>
+
+                                    </IonItem>
+                                )}
+
+                                {currentUser && (
+                                    <IonRow>
+                                        <IonCol>
+                                            <IonButton
+                                            id={idboton}
+                                            onClick={() => { 		
+                                                toggleForm(element.idevent);
+                                                }}
+                                            >
+                                                Comentar
                                             </IonButton>
-                                            <IonButton onClick={() => { 		
-                                            setShowModal(true);
-                                            selectModal(1,element);  
-                                            }}>
-                                                Update event
-                                            </IonButton>
-                                        </IonItem>
-                                    )}
-
-                                    {currentUser && (
-                                        <IonRow>
-                                            <IonCol>
-                                                <IonButton
-                                                id={idboton}
-                                                onClick={() => { 		
-                                                    toggleForm(element.idevent);
-                                                    }}
-                                                >
-                                                    Comentar
+                                        </IonCol>
+                                        <IonCol>
+                                            <IonRow id={idcontenido} style={{display:formVisibility}}>
+                                            <IonTextarea id={idcajacomentario} disabled={false}></IonTextarea>
+                                                <IonButton type="submit"
+                                                onClick={()=>{
+                                                    doComment(element.idevent,currentUser.user.username);
+                                                }}>
+                                                    Enviar comentario
                                                 </IonButton>
-                                            </IonCol>
-                                            <IonCol>
-                                                <form id={idcontenido} style={{display:formVisibility}}>
-                                                <IonTextarea id="text-area-comentario"disabled={false}></IonTextarea>
-                                                    <IonButton type="submit">Enviar comentario</IonButton>
-                                                </form>
-                                            </IonCol>
-                                        </IonRow>
-                                       
+                                            </IonRow>
+                                        </IonCol>
+                                    </IonRow>
+                                    
 
-                                    )}
+                                )}
 
-                                </IonCardContent>
-                            </IonCard>
-                            
-                        );
-                    });
+                            </IonCardContent>
+                        </IonCard>  
+                    );
+                    
+                    inputs.push(
+                        <IonTitle key={_.random(1000)}>Comentarios</IonTitle>
+                    )
+
+                    comments.forEach((comment) => {
+
+                        console.log(comment.idevent, element.idevent);
+                        if(comment.idevent === element.idevent){
+                            inputs.push(    
+                                <IonItem key={comment.idcomment}>
+                                    <IonCol>
+                                        <IonLabel>{comment.comment}</IonLabel>
+                                    </IonCol>
+                                    <IonCol>
+                                        <IonLabel>Posteado por {comment.author}</IonLabel>
+                                    </IonCol>
+                                    {(currentUser && (comment.author === currentUser.user.username || currentUser.user.rango === "Administrador")) && (
+                                    <IonItem>
+                                        <IonButton onClick={() => { 
+                                            _deleteComment(comment.idcomment)  
+                                        }}>
+                                            Delete comment
+                                        </IonButton>
+                                        <IonButton>
+                                            Update event
+                                        </IonButton>
+                                    </IonItem>
+                                )}
+                                </IonItem>
+    
+                            );
+                        }
+                    });     
+                });
+                console.log(comments);
+
             return inputs;
         }
         
@@ -190,7 +272,8 @@ const Home = (props) => {
         return(
             <IonPage>
                 {currentUser && (
-                    <IonButton
+                    <IonRow>
+                        <IonButton
 							class="pointerClass"
 							key={'registerEvents'}
 							onClick={() => {
@@ -200,6 +283,12 @@ const Home = (props) => {
 							>
                                 Register Events
 						</IonButton>
+                        <IonButton>
+                            <Link to={"/addevent"}>Register event new page</Link>
+                        </IonButton>
+                    </IonRow>
+
+
                 )}
                 
                 {changeModalView()}

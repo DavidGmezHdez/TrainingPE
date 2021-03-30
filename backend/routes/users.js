@@ -15,11 +15,18 @@ router.route('/register').post((req,res) =>{
     const rango = req.body.rol;
     
     const newUser = new User({username,password,rango});
+
     console.log(newUser);
-    newUser.save()
-    .then(() => res.status(200).send({message:'User added'}))
-    .catch(err => res.status(400).send({message:'Error: ' + err}));
-    
+    User.findOne({username:req.body.username})
+    .then((user)=>{
+        if(user){
+            return res.status(400).send({ok:false,message:"Usuario no encontrado"})
+        }
+        newUser.save()
+        .then(() => res.status(200).send({message:'User added'}))
+        .catch(err => res.status(400).send({message:'Error: ' + err}));
+    })
+    .catch(err => res.status(400).json('Error: ' + err));
 });
 
 router.route('/login').post((req,res)=>{
@@ -27,7 +34,7 @@ router.route('/login').post((req,res)=>{
     .then((user)=>{
         console.log(user);
         if(!user){
-            return res.status(400).send({ok:false,message:"Usuario no encontrado"})
+            
         }
 
         bcrypt.compareSync(req.body.password,user.password,function(err,res){
@@ -40,7 +47,7 @@ router.route('/login').post((req,res)=>{
             user: user
         },'secret',{expiresIn:'24'});
 
-        res.json({ok:true,user:user,token});
+        res.status(200).json({ok:true,user:user,token});
     })
     .catch(err => res.status(400).json('Error: ' + err));
 })

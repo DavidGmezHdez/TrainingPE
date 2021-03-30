@@ -15,6 +15,7 @@ import Home from './components/home';
 
 import {history} from "./helpers/history";
 import './assets/styles/App.css';
+import AddEvent from './components/addEvent';
 
 const App =() =>{
 
@@ -70,6 +71,7 @@ const App =() =>{
               <Route exact name="home" path={["/","/home"]} component={Home} />
               <Route name="login" exact path="/login" component={Login} />
               <Route name="register" exact path="/register" component={Register} />
+              <Route name="addevent" exact path="/addevent" component={AddEvent} />
           </Switch>
         </Router>
       </IonApp>

@@ -20,7 +20,7 @@ router.route('/add').post((req,res) =>{
     console.log(newEvent);
 
     newEvent.save()
-    .then(() => res.json('Event added'))
+    .then(() => res.status(200).send({message:'Event added',event:newEvent}))
     .catch(err => res.status(400).json('Error: ' + err));
 });
 

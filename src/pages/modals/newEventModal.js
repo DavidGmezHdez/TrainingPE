@@ -36,7 +36,12 @@ class ModalEvents extends Component{
                 this.setState({event: this.state.event});
                 console.log(this.state.event);
                 addEvent(this.state.event).then((response) =>{
-                    console.log(response)
+                    console.log(response);
+                    const eventBD = new Event(response.event._id,response.event.title,response.event.author,response.event.description, response.event.duration, response.event.date, response.event.createdAt, response.event.updatedAt);
+                    this.setState({event: eventBD});
+                    this.setShowModal(false);
+                    this.props.onDidDismiss({ state: this.state.showModal, event: this.state.event });
+                    console.log(this.state.event);
                 });
 			}
 		} catch (e) {
@@ -89,8 +94,6 @@ class ModalEvents extends Component{
                 <IonButton onClick={()=>{
                     console.log("nuevo evento")
                     this._doRegisterEvent();
-                    this.setShowModal(false);
-                    this.props.onDidDismiss({ state: this.state.showModal, event: this.state.event });
                 }}>Registrar Evento</IonButton>
                 <IonButton
                 onClick={()=>{
