@@ -61,7 +61,9 @@ const Home = (props) => {
         const _deleteElement = (id) =>{
             console.log(id);
             deleteEvent(id).then(()=>{
-                setElements(elements.filter(el => el.idevent !== id));
+                setElements(_.filter(elements,function(el){
+                    return el.idevent !== id;
+                }));
             })
         }
 
@@ -100,9 +102,12 @@ const Home = (props) => {
                             console.log(element)
                             console.log(_v.event)
                             let updatedEvent = elements.find(findelement => findelement.idevent === element.idevent);
-                            let index = elements.indexOf(updatedEvent);
+                            let index = _.findIndex(elements, function(findelement){
+                                return findelement.idevent === element.idevent;
+                            })
                             console.log(updatedEvent,index);
                             elements[index] = _v.event;
+                            console.log(updatedEvent,index,elements[index]);
                         }
                         else{
                             setElements([...elements,_v.event]);
@@ -136,7 +141,9 @@ const Home = (props) => {
         const _deleteComment = (id) =>{
             console.log(id);
             deleteComment(id).then(()=>{
-                setComments(comments.filter(el => el.idcomment !== id));
+                setComments(_.filter(comments,function(comm){
+                    return comm.idcomment !== id;
+                }));
             })
         }
 
@@ -144,98 +151,97 @@ const Home = (props) => {
 
         const renderElements = () =>{
             let inputs = [];
-            elements.forEach(element => {
-                    let idboton = "boton"+element.idevent;
-                    let idcontenido = "contenido"+element.idevent;
-                    let idcajacomentario = "cajacoment"+element.idevent;
-                    inputs.push(
-                        <IonCard key={element.idevent}>
+            _.forEach(elements, function(element){
+                let idboton = "boton"+element.idevent;
+                let idcontenido = "contenido"+element.idevent;
+                let idcajacomentario = "cajacoment"+element.idevent;
+                inputs.push(
+                    <IonCard key={element.idevent}>
+                        <IonCardHeader>
                             <IonCardHeader>
-                                <IonCardHeader>
-                                    <IonCardTitle>{element.title}</IonCardTitle>
-                                    </IonCardHeader>
-                            </IonCardHeader>
-                            <IonCardContent>
-                                <IonItem>
-                                    <IonLabel>Description</IonLabel>
-                                </IonItem>
-                                <IonItem>
-                                    <IonTextarea disabled={true}>{element.description}</IonTextarea>
-                                </IonItem>
-                                    
+                                <IonCardTitle>{element.title}</IonCardTitle>
+                                </IonCardHeader>
+                        </IonCardHeader>
+                        <IonCardContent>
+                            <IonItem>
+                                <IonLabel>Description</IonLabel>
+                            </IonItem>
+                            <IonItem>
+                                <IonTextarea disabled={true}>{element.description}</IonTextarea>
+                            </IonItem>
                                 
-                                
-                                <IonItem>
-                                    <IonLabel>Duracion</IonLabel>
-                                    <IonLabel>{element.duration} horas</IonLabel>
-                                </IonItem>
-                                <IonItem>
-                                    <IonLabel>Fecha</IonLabel>
-                                    <IonLabel>{element.date} horas</IonLabel>
-                                </IonItem>
-                                <IonItem>
-                                    <IonLabel>Posteado por {element.author}</IonLabel>
-                                </IonItem>
+                            
+                            
+                            <IonItem>
+                                <IonLabel>Duracion</IonLabel>
+                                <IonLabel>{element.duration} horas</IonLabel>
+                            </IonItem>
+                            <IonItem>
+                                <IonLabel>Fecha</IonLabel>
+                                <IonLabel>{element.date} horas</IonLabel>
+                            </IonItem>
+                            <IonItem>
+                                <IonLabel>Posteado por {element.author}</IonLabel>
+                            </IonItem>
 
-                                
-                                
+                            
+                            
 
-                                {(currentUser && (element.author === currentUser.user.username || currentUser.user.rango === "Administrador")) && (
-                                    <IonItem>
-                                        <IonButton onClick={() => { 
-                                            _deleteElement(element.idevent)  
-                                        }}>
-                                            Delete event
+                            {(currentUser && (element.author === currentUser.user.username || currentUser.user.rango === "Administrador")) && (
+                                <IonItem>
+                                    <IonButton onClick={() => { 
+                                        _deleteElement(element.idevent)  
+                                    }}>
+                                        Delete event
+                                    </IonButton>
+                                    <IonButton onClick={() => { 		
+                                    setShowModal(true);
+                                    selectModal(1,element);  
+                                    }}>
+                                        Update event
+                                    </IonButton>
+
+                                </IonItem>
+                            )}
+
+                            {currentUser && (
+                                <IonRow>
+                                    <IonCol>
+                                        <IonButton
+                                        id={idboton}
+                                        onClick={() => { 		
+                                            toggleForm(element.idevent);
+                                            }}
+                                        >
+                                            Comentar
                                         </IonButton>
-                                        <IonButton onClick={() => { 		
-                                        setShowModal(true);
-                                        selectModal(1,element);  
-                                        }}>
-                                            Update event
-                                        </IonButton>
-
-                                    </IonItem>
-                                )}
-
-                                {currentUser && (
-                                    <IonRow>
-                                        <IonCol>
-                                            <IonButton
-                                            id={idboton}
-                                            onClick={() => { 		
-                                                toggleForm(element.idevent);
-                                                }}
-                                            >
-                                                Comentar
+                                    </IonCol>
+                                    <IonCol>
+                                        <IonRow id={idcontenido} style={{display:formVisibility}}>
+                                        <IonTextarea id={idcajacomentario} disabled={false}></IonTextarea>
+                                            <IonButton type="submit"
+                                            onClick={()=>{
+                                                doComment(element.idevent,currentUser.user.username);
+                                            }}>
+                                                Enviar comentario
                                             </IonButton>
-                                        </IonCol>
-                                        <IonCol>
-                                            <IonRow id={idcontenido} style={{display:formVisibility}}>
-                                            <IonTextarea id={idcajacomentario} disabled={false}></IonTextarea>
-                                                <IonButton type="submit"
-                                                onClick={()=>{
-                                                    doComment(element.idevent,currentUser.user.username);
-                                                }}>
-                                                    Enviar comentario
-                                                </IonButton>
-                                            </IonRow>
-                                        </IonCol>
-                                    </IonRow>
-                                    
+                                        </IonRow>
+                                    </IonCol>
+                                </IonRow>
+                                
 
-                                )}
+                            )}
 
                             </IonCardContent>
                         </IonCard>  
                     );
+
                     
                     inputs.push(
                         <IonTitle key={_.random(1000)}>Comentarios</IonTitle>
                     )
 
-                    comments.forEach((comment) => {
-
-                        console.log(comment.idevent, element.idevent);
+                    _.forEach(comments, function(comment){
                         if(comment.idevent === element.idevent){
                             inputs.push(    
                                 <IonItem key={comment.idcomment}>
@@ -258,13 +264,10 @@ const Home = (props) => {
                                     </IonItem>
                                 )}
                                 </IonItem>
-    
                             );
                         }
-                    });     
+                    });  
                 });
-                console.log(comments);
-
             return inputs;
         }
         

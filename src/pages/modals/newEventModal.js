@@ -9,7 +9,6 @@ import {addEvent,updateEvent} from '../../services/home.service'
 class ModalEvents extends Component{
     constructor(props){
         super(props);
-        console.log(this.props.author);
         this.state = {
             showModal: true,
             event: undefined
@@ -34,14 +33,11 @@ class ModalEvents extends Component{
 			} else {
                 this.state.event = new Event(_.random(100),document.getElementById('title').value,this.props.author,document.getElementById('desc').value,document.getElementById('dur').value,document.getElementById('date').value);
                 this.setState({event: this.state.event});
-                console.log(this.state.event);
                 addEvent(this.state.event).then((response) =>{
-                    console.log(response);
                     const eventBD = new Event(response.event._id,response.event.title,response.event.author,response.event.description, response.event.duration, response.event.date, response.event.createdAt, response.event.updatedAt);
                     this.setState({event: eventBD});
                     this.setShowModal(false);
                     this.props.onDidDismiss({ state: this.state.showModal, event: this.state.event });
-                    console.log(this.state.event);
                 });
 			}
 		} catch (e) {
@@ -61,15 +57,12 @@ class ModalEvents extends Component{
 					'Los campos titulo, descripcion, duracion y fecha deben de estar rellenos'
 				);
 			} else {
-                this.state.event = new Event(this.props.event.idevent,document.getElementById('title').value,document.getElementById('desc').value,document.getElementById('dur').value,document.getElementById('date').value);
+                this.state.event = new Event(this.props.event.idevent,document.getElementById('title').value,this.props.event.author,document.getElementById('desc').value,document.getElementById('dur').value,document.getElementById('date').value);
                 this.setState({event: this.state.event});
-                console.log(this.state.event);
                 updateEvent(this.state.event.idevent,this.state.event).then((response) =>{
                     console.log(response)
                 });
 			}
-            
-           console.log("Update",this.props.event);
 		} catch (e) {
 			this.setState(() => ({ showErrorToast: true, errMsg: e.message }));
 		}
