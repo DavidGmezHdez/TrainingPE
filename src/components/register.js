@@ -7,7 +7,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {Redirect, useHistory} from "react-router-dom";
 
 
-import {register} from "../actions/auth";
+import {register} from "../actions/auth.actions";
 
 const required = (value) =>{
     if(!value){

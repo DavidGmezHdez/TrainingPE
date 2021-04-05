@@ -4,16 +4,10 @@ const API_URL = 'http://localhost:4000/users/';
 
 // Este servicio hará las requests HTTP y el Local Storage para la informacion del usuario y el JWT
 
-const register = async (username,password,rol) =>{
-    return axios.post(API_URL + 'register',{
-        username,password,rol
-    }) 
-    .then((response) => response.data);
-}
+const register = async (username,password,rol) =>{axios.post(API_URL + 'register',{username,password,rol}).then((response) => response.data);}
 
 const login = async (username,password) =>{
-    console.log(username,password);
-    return axios.post(API_URL + 'login',{
+    axios.post(API_URL + 'login',{
         username,password
     }) 
     .then((response) => {

@@ -3,17 +3,20 @@ import _ from 'lodash';
 
 import { toJS } from 'mobx';
 import Footer from '../components/footer'
-import ModalEvents from '../pages/modals/newEventModal'
-import {getElementos,deleteEvent,addComment,getComments, deleteComment} from '../services/home.service'
-import {logout} from "../actions/auth";
+import ModalEvents from './modals/newEventModal'
 import Comment from "../objects/comment";
 import React, { Component, useState, useRef, useEffect } from 'react';
 import {Link} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {Redirect} from "react-router-dom";
+import {getElements,deleteEvent} from "../actions/events.actions";
+import {getComments,deleteComment,addComment} from "../actions/comments.actions";
+import {comments} from "../actions/comments.actions";
 
 const Home = (props) => {
+        const {message} = useSelector(state => state.message);
         const {user: currentUser} = useSelector((state) => state.auth);
+        const {events:currentEvents} = useSelector((state) => state.events);
         const [elements,setElements] = useState([]);
         const [comments,setComments] = useState([]);
         const [showButtons,setShowButtons] = useState(false);
@@ -33,18 +36,11 @@ const Home = (props) => {
         },[currentUser]);
 
         const _getElements = () =>{
-            getElementos()
-            .then((elements) =>{
-                setElements(elements);
-            })
-            .catch((err)=>{
-                console.log("Error en getElements: " + err);
-            });   
+            dispatch(getElements());
         }
 
         const _getComments = () =>{
-
-            getComments()
+            dispatch(getComments())
             .then((comms) =>{
                 setComments(comms);
             })
@@ -55,16 +51,11 @@ const Home = (props) => {
 
         useEffect(() => {
             _getElements();
-            _getComments(); 
+            //_getComments(); 
         },[]);
 
         const _deleteElement = (id) =>{
-            console.log(id);
-            deleteEvent(id).then(()=>{
-                setElements(_.filter(elements,function(el){
-                    return el.idevent !== id;
-                }));
-            })
+            dispatch(deleteEvent(id));
         }
 
 
@@ -127,7 +118,7 @@ const Home = (props) => {
             const newComment = new Comment (_.random(100),idevent,usuario,document.getElementById("cajacoment"+idevent).value);
             console.log(newComment);
             toggleForm(idevent);
-            addComment(newComment)
+            dispatch(addComment(newComment))
             .then((response) =>{
                 console.log(response);
                 const commentBD = new Comment (response.comment._id,response.comment.idevent,response.comment.author,response.comment.comment,response.comment.createdAt,response.comment.updatedAt);
@@ -140,7 +131,8 @@ const Home = (props) => {
 
         const _deleteComment = (id) =>{
             console.log(id);
-            deleteComment(id).then(()=>{
+            dispatch(deleteComment(id))
+            .then(()=>{
                 setComments(_.filter(comments,function(comm){
                     return comm.idcomment !== id;
                 }));
@@ -151,12 +143,13 @@ const Home = (props) => {
 
         const renderElements = () =>{
             let inputs = [];
-            _.forEach(elements, function(element){
+            _.forEach(currentEvents, function(element){
+                
                 let idboton = "boton"+element.idevent;
                 let idcontenido = "contenido"+element.idevent;
                 let idcajacomentario = "cajacoment"+element.idevent;
                 inputs.push(
-                    <IonCard key={element.idevent}>
+                    <IonCard key={element._id}>
                         <IonCardHeader>
                             <IonCardHeader>
                                 <IonCardTitle>{element.title}</IonCardTitle>
@@ -190,7 +183,7 @@ const Home = (props) => {
                             {(currentUser && (element.author === currentUser.user.username || currentUser.user.rango === "Administrador")) && (
                                 <IonItem>
                                     <IonButton onClick={() => { 
-                                        _deleteElement(element.idevent)  
+                                        _deleteElement(element._id)  
                                     }}>
                                         Delete event
                                     </IonButton>
@@ -210,7 +203,7 @@ const Home = (props) => {
                                         <IonButton
                                         id={idboton}
                                         onClick={() => { 		
-                                            toggleForm(element.idevent);
+                                            toggleForm(element._id);
                                             }}
                                         >
                                             Comentar
@@ -221,17 +214,14 @@ const Home = (props) => {
                                         <IonTextarea id={idcajacomentario} disabled={false}></IonTextarea>
                                             <IonButton type="submit"
                                             onClick={()=>{
-                                                doComment(element.idevent,currentUser.user.username);
+                                                doComment(element._id,currentUser.user.username);
                                             }}>
                                                 Enviar comentario
                                             </IonButton>
                                         </IonRow>
                                     </IonCol>
                                 </IonRow>
-                                
-
                             )}
-
                             </IonCardContent>
                         </IonCard>  
                     );
@@ -242,7 +232,7 @@ const Home = (props) => {
                     )
 
                     _.forEach(comments, function(comment){
-                        if(comment.idevent === element.idevent){
+                        if(comment.idevent === element._id){
                             inputs.push(    
                                 <IonItem key={comment.idcomment}>
                                     <IonCol>
@@ -295,9 +285,9 @@ const Home = (props) => {
                 )}
                 
                 {changeModalView()}
-                <IonGrid>
-                    {renderElements()}
-                </IonGrid>
+                
+                {renderElements()}
+                
             </IonPage>
         )
 }

@@ -5,7 +5,7 @@ import React, { Component, useState, useRef, useEffect } from 'react';
 import {useDispatch, useSelector} from "react-redux";
 
 import {Redirect} from "react-router-dom";
-import {login} from "../actions/auth";
+import {login} from "../actions/auth.actions";
 
 const required = (value) =>{
     if(!value){

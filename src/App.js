@@ -2,7 +2,7 @@ import { IonApp, IonButton, IonContent, IonHeader, IonItem,IonLabel, IonNav, Ion
 import React, { Component, useState, useEffect } from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {BrowserRouter as Router, Switch, Route, Link} from "react-router-dom";
-import {logout} from "./actions/auth";
+import {logout} from "./actions/auth.actions";
 import {clearMessage} from "./actions/message";
 import{Provider} from "react-redux";
 import store from "./store";
@@ -12,10 +12,11 @@ import store from "./store";
 import Login from "./components/login";
 import Register from "./components/register";
 import Home from './components/home';
+import AddEvent from './components/addEvent';
 
 import {history} from "./helpers/history";
 import './assets/styles/App.css';
-import AddEvent from './components/addEvent';
+
 
 const App =() =>{
 

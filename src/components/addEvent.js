@@ -5,7 +5,7 @@ import React, { Component, useState, useRef, useEffect } from 'react';
 import {useDispatch, useSelector} from "react-redux";
 
 import {Redirect} from "react-router-dom";
-import {addEvent} from '../services/home.service'
+import {addEvent} from '../actions/events.actions'
 
 const required = (value) =>{
     if(!value){
@@ -16,20 +16,13 @@ const required = (value) =>{
 }
 
 const AddEvent = (props) => {
+        const {message} = useSelector(state => state.message);
+        const {user: currentUser} = useSelector((state) => state.auth);
+        const dispatch = useDispatch();
 
         const doRegisterEvent = (e) => {
-            console.log("hola");
-
-            const newEvent = new Event(_.random(100),document.getElementById('title').value,this.props.author,document.getElementById('desc').value,document.getElementById('dur').value,document.getElementById('date').value);
-            addEvent(newEvent)
-            .then((response) =>{
-                console.log(response);
-                //props.history.push("/home");
-                //window.location.reload();   
-            })
-            .catch((err)=>{
-                console.log("Error components/addevent: "+ err);
-            });
+            const newEv = {"title": document.getElementById('title').value,"author": currentUser.user.username, "description": document.getElementById('desc').value, "duration": document.getElementById('dur').value, "date": document.getElementById('date').value};
+            dispatch(addEvent(newEv))
         }
 
 
@@ -45,7 +38,7 @@ const AddEvent = (props) => {
                     <IonInput id="dur" type="number"></IonInput>
                     <IonLabel>Date</IonLabel>
                     <IonInput id="date" type="date"></IonInput>
-                    <IonButton type="submit">
+                    <IonButton type="submit" >
                         <span>Register new event</span>
                     </IonButton>
                 </form>

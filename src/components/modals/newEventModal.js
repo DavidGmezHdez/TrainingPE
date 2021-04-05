@@ -2,7 +2,7 @@ import { IonPage, IonContent, IonLoading,IonImg,IonHeader,IonButton,IonFooter,Io
 import _ from 'lodash';
 import React, { Component } from 'react';
 import Event from '../../objects/event'
-import {addEvent,updateEvent} from '../../services/home.service'
+import {addEvent,updateEvent} from "../../actions/events.actions";
 
 
 
