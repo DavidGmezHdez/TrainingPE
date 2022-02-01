@@ -37,7 +37,7 @@ export const register = (username,password,rol) => (dispatch) =>{
         }
     )
     .catch((err)=>{
-        console.log("Error actions/auth.js: ERROR" + err); 
+        console.log("Error actions/auth.js: " + err); 
     })
 };
 
